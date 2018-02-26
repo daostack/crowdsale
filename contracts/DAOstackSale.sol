@@ -54,7 +54,7 @@ contract DAOstackSale is Crowdsale, CappedCrowdsale, FinalizableCrowdsale, Limit
     }
 
     /*
-    ** @dev Finalizing. Finalizing. Transfering ownership to wallet for safe-keeping until it will be tranfferd to the DAO.
+    ** @dev Finalizing. Transfering ownership to wallet for safe-keeping until it will be tranfferd to the DAO.
     **      Called from the finialize function in FinalizableCrowdsale.
     */
     function finalization() internal {
