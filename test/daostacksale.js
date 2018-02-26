@@ -35,8 +35,7 @@ const setup = async function () {
         params.cap,
         params.minBuy,
         params.maxBuy,
-        token.address,
-        { gas: 6000000 }
+        token.address
     );
     await daoStackSale.addToWhiteList(accounts[1]);
     await daoStackSale.addToWhiteList(accounts[2]);
@@ -56,12 +55,12 @@ const buy = async function (buyer, value, shouldSucceed) {
     let balanceChange = new BigNumber(0);
     let tokenChange = new BigNumber(0);
     if (shouldSucceed === true) {
-        await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } );
+        await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } ); // Min sending gas (21k) is not enough
         balanceChange = value;
         tokenChange = value*params.rate;
     } else {
         try {
-            await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } );
+            await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } );  // Min sending gas (21k) is not enough
         } catch (error) {
             helpers.assertVMException(error, 'Buying should have failed but did not');
         }
@@ -154,11 +153,22 @@ contract('DAOstackSale', function (accounts)  {
         await buy(whiteListed[0], web3.toWei(2), false);
 
         // Check finalization:
-        daoStackSale.finalize();
+        await daoStackSale.finalize();
         assert.equal(await token.owner(), params.wallet);
 
         // Try to buy again after finish:
         await buy(whiteListed[0], web3.toWei(2), false);
+
+        // Check no ethers left on contract, and no
+        assert.equal(await web3.eth.getBalance(daoStackSale.address), 0, 'Funds left on contract');
+
+        // Check drain by owner and non-owner:
+        await daoStackSale.drain(); // Just chack it does not revert
+        try {
+            await daoStackSale.drain({ from: accounts[1] });
+        } catch (error) {
+            helpers.assertVMException(error);
+        }
     });
 
     it("Full Scenario 2, time cap", async () => {
@@ -188,10 +198,21 @@ contract('DAOstackSale', function (accounts)  {
         await buy(whiteListed[0], web3.toWei(2), false);
 
         // Check finalization:
-        daoStackSale.finalize();
+        await daoStackSale.finalize();
         assert.equal(await token.owner(), params.wallet);
 
         // Try to buy again after finish:
         await buy(whiteListed[0], web3.toWei(2), false);
+
+        // Check no ethers left on contract, and no
+        assert.equal(await web3.eth.getBalance(daoStackSale.address), 0, 'Funds left on contract');
+
+        // Check drain by owner and non-owner:
+        await daoStackSale.drain(); // Just chack it does not revert
+        try {
+            await daoStackSale.drain({ from: accounts[1] });
+        } catch (error) {
+            helpers.assertVMException(error);
+        }
     });
 });

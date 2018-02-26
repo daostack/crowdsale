@@ -12,14 +12,14 @@ contract WhiteList is Ownable {
     mapping (address=>bool) public whiteList;
 
     modifier isWhiteListed() {
-        require(whiteListed(msg.sender));
+        require(whiteList[msg.sender]);
         _;
     }
 
-    function whiteListed(address _address) public view returns(bool) {
-        return whiteList[_address];
-    }
 
+    /*
+    ** @dev Add an address to the whitelist.
+    */
     function addToWhiteList(address _address) onlyOwner public returns(bool) {
         if (!whiteList[_address]) {
             whiteListSize++;
@@ -30,6 +30,9 @@ contract WhiteList is Ownable {
         return false;
     }
 
+    /*
+    ** @dev Remove an address from the whitelist.
+    */
     function removeFromWhiteList(address _address) onlyOwner public returns(bool) {
         if (whiteList[_address]) {
             whiteListSize--;

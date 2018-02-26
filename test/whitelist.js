@@ -16,16 +16,19 @@ contract('WhiteList', function (accounts)  {
 
     it("Add to whitelist - owner", async () => {
         let whiteList = await setup();
+        let tx;
 
         // Add one:
-        await whiteList.addToWhiteList(accounts[1]);
+        tx = await whiteList.addToWhiteList(accounts[1]);
         assert(await whiteList.whiteList(accounts[1]), "whitelisting was unseccessfull");
         assert.equal(await whiteList.whiteListSize(), 1, "whitelist size is not correct");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogWhiteListAdd'), accounts[1]);
 
         // Add second:
-        await whiteList.addToWhiteList(accounts[2]);
+        tx = await whiteList.addToWhiteList(accounts[2]);
         assert(await whiteList.whiteList(accounts[2]), "whitelisting was unseccessfull");
         assert.equal(await whiteList.whiteListSize(), 2, "whitelist size is not correct");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogWhiteListAdd'), accounts[2]);
     });
 
     it("Add to whitelist - not owner", async () => {
@@ -42,22 +45,25 @@ contract('WhiteList', function (accounts)  {
 
     it("Remove from whitelist - owner", async () => {
         let whiteList = await setup();
+        let tx;
 
         // Add:
         await whiteList.addToWhiteList(accounts[1]);
         await whiteList.addToWhiteList(accounts[2]);
 
         // Remove one:
-        await whiteList.removeFromWhiteList(accounts[1]);
+        tx = await whiteList.removeFromWhiteList(accounts[1]);
         assert(!(await whiteList.whiteList(accounts[1])), "removing was unseccessfull");
         assert(await whiteList.whiteList(accounts[2]), "removing was unseccessfull");
         assert.equal(await whiteList.whiteListSize(), 1, "whitelist size is not correct");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogWhiteListRemove'), accounts[1]);
 
-        // Remove two
-        await whiteList.removeFromWhiteList(accounts[2]);
+        // Remove two:
+        tx = await whiteList.removeFromWhiteList(accounts[2]);
         assert(!(await whiteList.whiteList(accounts[1])), "removing was unseccessfull");
         assert(!(await whiteList.whiteList(accounts[2])), "removing was unseccessfull");
         assert.equal(await whiteList.whiteListSize(), 0, "whitelist size is not correct");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogWhiteListRemove'), accounts[2]);
     });
 
     it("Remove from whitelist - not owner", async () => {

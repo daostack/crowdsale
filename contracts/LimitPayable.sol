@@ -4,7 +4,7 @@ import "./zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract LimitPayable is Ownable {
-    event LogLimitChanged(uint _minPay, uint _maxPay);
+    event LogLimitsChanged(uint _minPay, uint _maxPay);
 
     // Variables holding the min and max payment in wei
     uint public minPay;
@@ -14,12 +14,12 @@ contract LimitPayable is Ownable {
     ** Modifier, reverting if not within limits.
     */
     modifier isWithinLimits() {
-        require(withinLimits());
+        require(withinLimits(msg.value));
         _;
     }
 
     /*
-    ** @dev Construcor, define variable:
+    ** @dev Constructor, define variable:
     */
     function LimitPayable(uint _min, uint  _max) public {
         _setLimits(_min, _max);
@@ -35,8 +35,8 @@ contract LimitPayable is Ownable {
     /*
     ** @dev Check TXs value is within limits:
     */
-    function withinLimits() public view returns(bool) {
-        return (msg.value >= minPay && msg.value <= maxPay);
+    function withinLimits(uint _value) public view returns(bool) {
+        return (_value >= minPay && _value <= maxPay);
     }
 
     /*
@@ -46,6 +46,6 @@ contract LimitPayable is Ownable {
         require (_min<=_max); // Sanity Check
         minPay = _min;
         maxPay = _max;
-        LogLimitChanged(_min, _max);
+        LogLimitsChanged(_min, _max);
     }
 }

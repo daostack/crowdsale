@@ -1,6 +1,6 @@
 pragma solidity 0.4.19;
 
-import "./LimitPayable.sol";
+import "../LimitPayable.sol";
 
 
 contract LimitPayableMock is LimitPayable {

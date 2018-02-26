@@ -9,6 +9,18 @@ import "./LimitPayable.sol";
 
 
 contract DAOstackSale is Crowdsale, CappedCrowdsale, FinalizableCrowdsale, LimitPayable, WhiteList {
+
+    /*
+    ** @dev constructor.
+    ** @param _startTime the time sale start.
+    ** @param _endTime the time sale ends.
+    ** @param _rate the sale rate, buyer gets tokens = _rates * msg.value.
+    ** @param _wallet the DAOstack multi-sig address.
+    ** @param _cap the sale cap.
+    ** @param _minBuy the min amount (in Wei) one can buy with.
+    ** @param _maxBuy the max amount (in Wei) one can buy with.
+    ** @param _token the mintable token contract.
+    */
     function DAOstackSale(
         uint _startTime,
         uint _endTime,
@@ -25,19 +37,23 @@ contract DAOstackSale is Crowdsale, CappedCrowdsale, FinalizableCrowdsale, Limit
     {
     }
 
+    /*
+    ** @dev check agent is whitelisted, value is within limits, and call super.
+    */
     function validPurchase() internal view returns (bool) {
-        return (whiteListed(msg.sender) && withinLimits() && super.validPurchase());
+        return (whiteList[msg.sender] && withinLimits(msg.value) && super.validPurchase());
     }
 
     /*
-    ** Drain function, in case of failiure. Contract should not hold eth anyhow/
+    ** @dev Drain function, in case of failure. Contract should not hold eth anyhow.
     */
     function drain() onlyOwner public {
         wallet.transfer(this.balance);
     }
 
     /*
-    ** Finalizing. Transfering ownership to wallet for keeping until it will be tranfferd to the DAO.
+    ** @dev Finalizing. Finalizing. Transfering ownership to wallet for safe-keeping until it will be tranfferd to the DAO.
+    **      Called from the finialize function in FinalizableCrowdsale.
     */
     function finalization() internal {
         token.transferOwnership(wallet);

@@ -19,9 +19,11 @@ contract('LimitPayableMock', function (accounts)  {
     it("Change limits - owner", async () => {
         let limitPayableMock = await setup(web3.toWei(1), web3.toWei(10));
 
-        await limitPayableMock.changeLimits(web3.toWei(0), web3.toWei(7));
+        let tx = await limitPayableMock.changeLimits(web3.toWei(0), web3.toWei(7));
         assert.equal(await limitPayableMock.minPay(), web3.toWei(0), "Min param is not correct");
         assert.equal(await limitPayableMock.maxPay(), web3.toWei(7), "Min param is not correct");
+        assert.equal(helpers.getValueFromLogs(tx, '_minPay', 'LogLimitsChanged'), web3.toWei(0));
+        assert.equal(helpers.getValueFromLogs(tx, '_maxPay', 'LogLimitsChanged'), web3.toWei(7));
     });
 
     it("Change limits - not owner", async () => {
@@ -34,6 +36,29 @@ contract('LimitPayableMock', function (accounts)  {
         }
         assert.equal(await limitPayableMock.minPay(), web3.toWei(1), "Min param is not correct");
         assert.equal(await limitPayableMock.maxPay(), web3.toWei(10), "Min param is not correct");
+    });
+
+    it("Change limits - min > max", async () => {
+        let limitPayableMock = await setup(web3.toWei(1), web3.toWei(10));
+
+        try {
+            await limitPayableMock.changeLimits(web3.toWei(7), web3.toWei(3));
+        } catch (error) {
+            helpers.assertVMException(error);
+        }
+        assert.equal(await limitPayableMock.minPay(), web3.toWei(1), "Min param is not correct");
+        assert.equal(await limitPayableMock.maxPay(), web3.toWei(10), "Min param is not correct");
+    });
+
+    it("Check limits", async () => {
+        let limitPayableMock = await setup(web3.toWei(1), web3.toWei(10));
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(1)), true, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(10)), true, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(3.7)), true, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(0)), false, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(0.99)), false, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(10.01)), false, 'withinLimits function problem');
+        assert.equal(await limitPayableMock.withinLimits(web3.toWei(100)), false, 'withinLimits function problem');
     });
 
     it("Try sending legit values", async () => {
