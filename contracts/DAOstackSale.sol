@@ -38,7 +38,9 @@ contract DAOstackSale is Crowdsale, CappedCrowdsale, FinalizableCrowdsale, Limit
     }
 
     /*
-    ** @dev check agent is whitelisted, value is within limits, and call super.
+    ** @dev Check a Purchase is valid, check that msg.sender is whitelisted,
+    **      msg.value is within limits, and call super validPurchase.
+    **      This function is called from buy at crowdsale.sol
     */
     function validPurchase() internal view returns (bool) {
         return (whiteList[msg.sender] && withinLimits(msg.value) && super.validPurchase());
