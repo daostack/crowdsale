@@ -71,6 +71,5 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
         } else {
             weiAmount = _weiAmount;
         }
-        return;
     }
 }
