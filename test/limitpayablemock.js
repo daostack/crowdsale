@@ -64,9 +64,9 @@ contract('LimitPayableMock', function (accounts)  {
     it("Try sending legit values", async () => {
         let limitPayableMock = await setup(web3.toWei(1), web3.toWei(10));
 
-        await web3.eth.sendTransaction( {to: limitPayableMock.address, from: accounts[1], value: web3.toWei(10)} );
-        await web3.eth.sendTransaction( {to: limitPayableMock.address, from: accounts[1], value: web3.toWei(1)} );
-        await web3.eth.sendTransaction( {to: limitPayableMock.address, from: accounts[1], value: web3.toWei(3.5)} );
+        await limitPayableMock.testBuy({from: accounts[1], value: web3.toWei(10)} );
+        await limitPayableMock.testBuy({from: accounts[1], value: web3.toWei(1)} );
+        await limitPayableMock.testBuy({from: accounts[1], value: web3.toWei(3.5)} );
         assert.equal(await web3.eth.getBalance(limitPayableMock.address), web3.toWei(14.5), 'Balance is not correct');
     });
 
@@ -74,13 +74,13 @@ contract('LimitPayableMock', function (accounts)  {
         let limitPayableMock = await setup(web3.toWei(1), web3.toWei(10));
 
         try {
-            await web3.eth.sendTransaction( {to: limitPayableMock.address, from: accounts[1], value: web3.toWei(0.9)} );
+            await limitPayableMock.testBuy({from: accounts[1], value: web3.toWei(0.9)} );
         } catch (error) {
             helpers.assertVMException(error);
         }
 
         try {
-            await web3.eth.sendTransaction( {to: limitPayableMock.address, from: accounts[1], value: web3.toWei(10.1)} );
+            await limitPayableMock.testBuy({from: accounts[1], value: web3.toWei(10.1)} );
         } catch (error) {
             helpers.assertVMException(error);
         }

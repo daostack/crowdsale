@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
-import "../token/ERC20/ERC20.sol";
-import "../math/SafeMath.sol";
+import "./token/ERC20/ERC20.sol";
+import "./math/SafeMath.sol";
 
 /**
  * @title Crowdsale
@@ -61,35 +61,52 @@ contract Crowdsale {
   // Crowdsale external interface
   // -----------------------------------------
 
-
-
+  function () external payable {
+      buyTokens(msg.sender);
+  }
   /**
    * @dev low level token purchase ***DO NOT OVERRIDE***
    * @param _beneficiary Address performing the token purchase
    */
-  function buyTokens(address _beneficiary,uint _weiAmount) public  {
+  function buyTokens(address _beneficiary) payable public  {
+    uint weiAmount;
+    uint changeEthBack;
 
-    _preValidatePurchase(_beneficiary, _weiAmount);
+    (weiAmount,changeEthBack) = _prePurchaseAmount(msg.value);
+    _preValidatePurchase(_beneficiary, weiAmount);
 
     // calculate token amount to be created
-    uint256 tokens = _getTokenAmount(_weiAmount);
+    uint256 tokens = _getTokenAmount(weiAmount);
 
     // update state
-    weiRaised = weiRaised.add(_weiAmount);
+    weiRaised = weiRaised.add(weiAmount);
 
     _processPurchase(_beneficiary, tokens);
-    TokenPurchase(msg.sender, _beneficiary, _weiAmount, tokens);
+    TokenPurchase(msg.sender, _beneficiary, weiAmount, tokens);
 
-    _updatePurchasingState(_beneficiary, _weiAmount);
+    _updatePurchasingState(_beneficiary, weiAmount);
 
-    _forwardFunds(_weiAmount);
-    _postValidatePurchase(_beneficiary, _weiAmount);
+    _forwardFunds(weiAmount);
+    _postValidatePurchase(_beneficiary, weiAmount);
+    if (changeEthBack > 0) {
+        msg.sender.transfer(changeEthBack);
+    }
   }
 
   // -----------------------------------------
   // Internal interface (extensible)
   // -----------------------------------------
 
+  /*
+  ** @dev _prePurchaseAmount. Calculate the acceptable wei amount according to the sale cap.
+  ** @param _weiAmount the amount which is sent to the contract.
+  ** @return weiAmount the acceptable amount
+  **         changeEthBack ether amount to send back to the purchaser.
+  **
+  */
+  function _prePurchaseAmount(uint _weiAmount) internal returns(uint , uint) {
+       return (_weiAmount,0);
+  }
   /**
    * @dev Validation of an incoming purchase. Use require statemens to revert state when conditions are not met. Use super to concatenate validations.
    * @param _beneficiary Address performing the token purchase

@@ -9,8 +9,10 @@
       "double"
     ],
     "indentation": [
-      "error",
-      4
+      "off"
+    ],
+    "security/no-block-members": [
+      "off"
     ]
   }
 }

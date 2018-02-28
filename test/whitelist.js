@@ -16,14 +16,27 @@ contract('WhiteList', function (accounts)  {
 
     it("Add to whitelist - owner", async () => {
         let whitelist = await setup();
+        let tx;
 
         // Add one:
-        await whitelist.addToWhitelist(accounts[1]);
+        tx = await whitelist.addToWhitelist(accounts[1]);
         assert(await whitelist.whitelist(accounts[1]), "whitelisting was unsuccessful");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogAddedToWhiteList'), accounts[1]);
 
         // Add second:
-        await whitelist.addToWhitelist(accounts[2]);
+        tx = await whitelist.addToWhitelist(accounts[2]);
         assert(await whitelist.whitelist(accounts[2]), "whitelisting was unsuccessful");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogAddedToWhiteList'), accounts[2]);
+
+        tx = await whitelist.addManyToWhitelist([accounts[3],[accounts[4]]]);
+        assert(await whitelist.whitelist(accounts[3]), "whitelisting was unsuccessful");
+        assert(await whitelist.whitelist(accounts[4]), "whitelisting was unsuccessful");
+        assert.equal(tx.logs.length, 2);
+        assert.equal(tx.logs[0].event, "LogAddedToWhiteList");
+        assert.equal(tx.logs[0].args._address, accounts[3]);
+        assert.equal(tx.logs[1].event, "LogAddedToWhiteList");
+        assert.equal(tx.logs[1].args._address, accounts[4]);
+
     });
 
     it("Add to whitelist - not owner", async () => {
@@ -36,24 +49,35 @@ contract('WhiteList', function (accounts)  {
         } catch (error) {
             helpers.assertVMException(error);
         }
+
+        // Try to add many:
+        try {
+            await whitelist.addManyToWhitelist([accounts[0],accounts[1]], { from: accounts[1] });
+            assert(false, 'Not owenr was able to add to list');
+        } catch (error) {
+            helpers.assertVMException(error);
+        }
     });
 
     it("Remove from whitelist - owner", async () => {
         let whitelist = await setup();
+        let tx;
 
         // Add:
         await whitelist.addToWhitelist(accounts[1]);
         await whitelist.addToWhitelist(accounts[2]);
 
         // Remove one:
-        await whitelist.removeFromWhitelist(accounts[1]);
+        tx = await whitelist.removeFromWhitelist(accounts[1]);
         assert(!(await whitelist.whitelist(accounts[1])), "removing was unsuccessful");
         assert(await whitelist.whitelist(accounts[2]), "removing was unsuccessful");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogRemovedFromWhiteList'), accounts[1]);
 
         // Remove two:
-        await whitelist.removeFromWhitelist(accounts[2]);
+        tx = await whitelist.removeFromWhitelist(accounts[2]);
         assert(!(await whitelist.whitelist(accounts[1])), "removing was unsuccessful");
         assert(!(await whitelist.whitelist(accounts[2])), "removing was unsuccessful");
+        assert.equal(helpers.getValueFromLogs(tx, '_address', 'LogRemovedFromWhiteList'), accounts[2]);
     });
 
     it("Remove from whitelist - not owner", async () => {
