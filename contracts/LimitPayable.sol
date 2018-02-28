@@ -1,9 +1,10 @@
 pragma solidity 0.4.19;
 
 import "./zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
 
 
-contract LimitPayable is Ownable {
+contract LimitPayable is Crowdsale,Ownable {
     event LogLimitsChanged(uint _minPay, uint _maxPay);
 
     // Variables holding the min and max payment in wei
@@ -13,8 +14,8 @@ contract LimitPayable is Ownable {
     /*
     ** Modifier, reverting if not within limits.
     */
-    modifier isWithinLimits() {
-        require(withinLimits(msg.value));
+    modifier isWithinLimits(uint _amount) {
+        require(withinLimits(_amount));
         _;
     }
 
@@ -47,5 +48,14 @@ contract LimitPayable is Ownable {
         minPay = _min;
         maxPay = _max;
         LogLimitsChanged(_min, _max);
+    }
+
+    /**
+     * @dev Extend parent behavior requiring to be within contributing period
+     * @param _beneficiary Token purchaser
+     * @param _weiAmount Amount of wei contributed
+     */
+    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal isWithinLimits(_weiAmount) {
+        super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 }
