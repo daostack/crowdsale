@@ -1,30 +1,18 @@
 pragma solidity 0.4.19;
 
-import "./zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
-import "./zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
-import "./zeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
-import "./zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
-import "./zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
-import "./zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
-import "./zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol";
+import "./token/ERC20/MintableToken.sol";
+import "./CappedCrowdsale.sol";
+import "./TimedCrowdsale.sol";
+import "./WhitelistedCrowdsale.sol";
+import "./Crowdsale.sol";
+import "./FinalizableCrowdsale.sol";
+import "./MintedCrowdsale.sol";
 import "./LimitPayable.sol";
 
 
 contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, LimitPayable, WhitelistedCrowdsale {
     using SafeMath for uint256;
 
-    function () external payable {
-        uint256 weiAmount = msg.value;
-        uint changeEthBack;
-        if (!capReached() && weiRaised.add(weiAmount) > cap) {
-            changeEthBack = weiRaised.add(weiAmount) - cap;
-            weiAmount = weiAmount.sub(changeEthBack);
-        }
-        buyTokens(msg.sender,weiAmount);
-        if (changeEthBack > 0) {
-            msg.sender.transfer(changeEthBack);
-        }
-    }
     /*
     ** @dev constructor.
     ** @param _openingTime the time sale start.
@@ -61,10 +49,28 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     }
 
     /*
-    ** @dev Finalizing. Transfer the remaining tokens back to wallet for safe-keeping until it will be transferred to the DAO.
+    ** @dev Finalizing. Transfer token ownership to wallet for safe-keeping until it will be transferred to the DAO.
     **      Called from the finialize function in FinalizableCrowdsale.
     */
     function finalization() internal {
         MintableToken(token).transferOwnership(wallet);
+    }
+
+    /*
+    ** @dev _prePurchaseAmount. Calculate the acceptable wei amount according to the sale cap.
+    **      override  crowdsale _prePurchaseAmount .
+    ** @param _weiAmount the amount which is sent to the contract.
+    ** @return weiAmount the acceptable amount
+    **         changeEthBack ether amount to send back to the purchaser.
+    **
+    */
+    function _prePurchaseAmount(uint _weiAmount) internal returns(uint weiAmount, uint changeEthBack) {
+        if (!capReached() && weiRaised.add(_weiAmount) > cap) {
+            changeEthBack = weiRaised.add(_weiAmount) - cap;
+            weiAmount = _weiAmount.sub(changeEthBack);
+        } else {
+            weiAmount = _weiAmount;
+        }
+        return;
     }
 }

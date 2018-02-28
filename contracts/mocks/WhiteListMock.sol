@@ -1,8 +1,8 @@
 pragma solidity 0.4.19;
 
-import "../zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
-import "../zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
-import "../zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
+import "../WhitelistedCrowdsale.sol";
+import "../token/ERC20/MintableToken.sol";
+import "../Crowdsale.sol";
 
 contract WhiteListMock is WhitelistedCrowdsale {
     function WhiteListMock()

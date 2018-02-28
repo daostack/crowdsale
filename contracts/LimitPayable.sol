@@ -1,7 +1,7 @@
 pragma solidity 0.4.19;
 
-import "./zeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./zeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
+import "./ownership/Ownable.sol";
+import "./Crowdsale.sol";
 
 
 contract LimitPayable is Crowdsale,Ownable {
