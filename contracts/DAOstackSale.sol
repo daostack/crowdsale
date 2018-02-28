@@ -54,15 +54,6 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     }
 
     /*
-    ** @dev Check a Purchase is valid, check that msg.sender is whitelisted,
-    **      msg.value is within limits, and call super validPurchase.
-    **      This function is called from buy at crowdsale.sol
-    */
-    /*function validPurchase() internal view returns (bool) {
-        return (whiteList[msg.sender] && withinLimits(msg.value) && super.validPurchase());
-    }*/
-
-    /*
     ** @dev Drain function, in case of failure. Contract should not hold eth anyhow.
     */
     function drain() onlyOwner public {
