@@ -1,12 +1,12 @@
 pragma solidity 0.4.19;
 
-import "../LimitPayable.sol";
+import "../BuyLimitsCrowdsale.sol";
 import "../token/ERC20/MintableToken.sol";
 import "../Crowdsale.sol";
 
-contract LimitPayableMock is LimitPayable {
+contract LimitPayableMock is BuyLimitsCrowdsale {
     function LimitPayableMock(uint _minPay, uint _maxPay) public
-        LimitPayable(_minPay, _maxPay)
+        BuyLimitsCrowdsale(_minPay, _maxPay)
         Crowdsale(1, address(1), MintableToken(1))
     {}
 

@@ -4,12 +4,12 @@ import "./ownership/Ownable.sol";
 import "./Crowdsale.sol";
 
 
-contract LimitPayable is Crowdsale,Ownable {
-    event LogLimitsChanged(uint _minPay, uint _maxPay);
+contract BuyLimitsCrowdsale is Crowdsale, Ownable {
+    event LogLimitsChanged(uint _minBuy, uint _maxBuy);
 
     // Variables holding the min and max payment in wei
-    uint public minPay;
-    uint public maxPay;
+    uint public minBuy; // min buy in wei
+    uint public maxBuy; // max buy in wei, 0 means no maximum
 
     /*
     ** Modifier, reverting if not within limits.
@@ -22,7 +22,7 @@ contract LimitPayable is Crowdsale,Ownable {
     /*
     ** @dev Constructor, define variable:
     */
-    function LimitPayable(uint _min, uint  _max) public {
+    function BuyLimitsCrowdsale(uint _min, uint  _max) public {
         _setLimits(_min, _max);
     }
 
@@ -37,16 +37,23 @@ contract LimitPayable is Crowdsale,Ownable {
     ** @dev Check TXs value is within limits:
     */
     function withinLimits(uint _value) public view returns(bool) {
-        return (_value >= minPay && _value <= maxPay);
+        if (maxBuy != 0) {
+            return (_value >= minBuy && _value <= maxBuy);
+        }
+        return (_value >= minBuy);
     }
 
     /*
     ** @dev set limits logic:
+    ** @param _min set the minimum buy in wei
+    ** @param _max set the maximum buy in wei, 0 indeicates no maximum
     */
     function _setLimits(uint _min, uint _max) private {
-        require (_min<=_max); // Sanity Check
-        minPay = _min;
-        maxPay = _max;
+        if (_max != 0) {
+            require (_min <= _max); // Sanity Check
+        }
+        minBuy = _min;
+        maxBuy = _max;
         LogLimitsChanged(_min, _max);
     }
 
