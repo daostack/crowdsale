@@ -7,10 +7,10 @@ import "./WhitelistedCrowdsale.sol";
 import "./Crowdsale.sol";
 import "./FinalizableCrowdsale.sol";
 import "./MintedCrowdsale.sol";
-import "./LimitPayable.sol";
+import "./BuyLimitsCrowdsale.sol";
 
 
-contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, LimitPayable, WhitelistedCrowdsale {
+contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, BuyLimitsCrowdsale, WhitelistedCrowdsale {
     using SafeMath for uint256;
 
     /*
@@ -36,7 +36,7 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     ) public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
-        LimitPayable(_minBuy, _maxBuy)
+        BuyLimitsCrowdsale(_minBuy, _maxBuy)
         TimedCrowdsale(_openingTime,_closingTime)
     {
     }
