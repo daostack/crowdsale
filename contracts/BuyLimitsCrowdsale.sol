@@ -4,7 +4,7 @@ import "./ownership/Ownable.sol";
 import "./Crowdsale.sol";
 
 
-contract BuyLimitsCrowdsale is Crowdsale, Ownable {
+contract BuyLimitsCrowdsale is Crowdsale {
     event LogLimitsChanged(uint _minBuy, uint _maxBuy);
 
     // Variables holding the min and max payment in wei
@@ -23,13 +23,6 @@ contract BuyLimitsCrowdsale is Crowdsale, Ownable {
     ** @dev Constructor, define variable:
     */
     function BuyLimitsCrowdsale(uint _min, uint  _max) public {
-        _setLimits(_min, _max);
-    }
-
-    /*
-    ** @dev owner can change min and max:
-    */
-    function changeLimits(uint _min, uint _max) public onlyOwner {
         _setLimits(_min, _max);
     }
 
