@@ -19,44 +19,13 @@ contract('BuyLimitsCrowdsaleMock', function (accounts)  {
         assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(10), "Min param is not correct");
     });
 
-    it("Change limits - owner", async () => {
-        let buyLimitsCrowdsaleMock = await setup(web3.toWei(1), web3.toWei(10));
-
-        let tx = await buyLimitsCrowdsaleMock.changeLimits(web3.toWei(0), web3.toWei(7));
-        assert.equal(await buyLimitsCrowdsaleMock.minBuy(), web3.toWei(0), "Min param is not correct");
-        assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(7), "Max param is not correct");
-        assert.equal(helpers.getValueFromLogs(tx, '_minBuy', 'LogLimitsChanged'), web3.toWei(0));
-        assert.equal(helpers.getValueFromLogs(tx, '_maxBuy', 'LogLimitsChanged'), web3.toWei(7));
-
-        tx = await buyLimitsCrowdsaleMock.changeLimits(web3.toWei(5), web3.toWei(0));
-        assert.equal(await buyLimitsCrowdsaleMock.minBuy(), web3.toWei(5), "Min param is not correct");
-        assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(0), "Max param is not correct");
-        assert.equal(helpers.getValueFromLogs(tx, '_minBuy', 'LogLimitsChanged'), web3.toWei(5));
-        assert.equal(helpers.getValueFromLogs(tx, '_maxBuy', 'LogLimitsChanged'), web3.toWei(0));
-    });
-
-    it("Change limits - not owner", async () => {
-        let buyLimitsCrowdsaleMock = await setup(web3.toWei(1), web3.toWei(10));
-
+    it("Set limits - min > max", async () => {
+        let token = await MintableToken.new();
         try {
-            await buyLimitsCrowdsaleMock.changeLimits(web3.toWei(0), web3.toWei(7), { from: accounts[1] });
+            await BuyLimitsCrowdsaleMock.new(web3.toWei(10), web3.toWei(1), token.address);
         } catch (error) {
             helpers.assertVMException(error);
         }
-        assert.equal(await buyLimitsCrowdsaleMock.minBuy(), web3.toWei(1), "Min param is not correct");
-        assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(10), "Min param is not correct");
-    });
-
-    it("Change limits - min > max", async () => {
-        let buyLimitsCrowdsaleMock = await setup(web3.toWei(1), web3.toWei(10));
-
-        try {
-            await buyLimitsCrowdsaleMock.changeLimits(web3.toWei(7), web3.toWei(3));
-        } catch (error) {
-            helpers.assertVMException(error);
-        }
-        assert.equal(await buyLimitsCrowdsaleMock.minBuy(), web3.toWei(1), "Min param is not correct");
-        assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(10), "Min param is not correct");
     });
 
     it("Check limits - with maximum", async () => {
