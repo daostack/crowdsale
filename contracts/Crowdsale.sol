@@ -107,6 +107,7 @@ contract Crowdsale {
   function _prePurchaseAmount(uint _weiAmount) internal returns(uint , uint) {
        return (_weiAmount,0);
   }
+  
   /**
    * @dev Validation of an incoming purchase. Use require statemens to revert state when conditions are not met. Use super to concatenate validations.
    * @param _beneficiary Address performing the token purchase

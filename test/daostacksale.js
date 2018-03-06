@@ -136,8 +136,8 @@ contract('DAOstackSale', function (accounts)  {
         assert.equal(await daoStackSale.openingTime(), params.openingTime, "openingTime is not correct");
         assert.equal(await daoStackSale.closingTime(), params.closingTime, "closingTime is not correct");
         assert.equal(await daoStackSale.wallet(), params.wallet, "Wallet is not correct");
-        assert.equal(await daoStackSale.minPay(), params.minBuy, "Min param is not correct");
-        assert.equal(await daoStackSale.maxPay(), params.maxBuy, "Max param is not correct");
+        assert.equal(await daoStackSale.minBuy(), params.minBuy, "Min param is not correct");
+        assert.equal(await daoStackSale.maxBuy(), params.maxBuy, "Max param is not correct");
         assert.equal(await daoStackSale.cap(), params.cap, "Cap param is not correct");
         assert.equal(await daoStackSale.rate(), params.rate, "Rate param is not correct");
     });
