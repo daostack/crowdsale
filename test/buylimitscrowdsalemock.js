@@ -11,10 +11,8 @@ const setup = async function (_min, _max) {
 
 contract('BuyLimitsCrowdsaleMock', function (accounts)  {
 
-    it("Check owner and limits", async () => {
+    it("Check limits", async () => {
         let buyLimitsCrowdsaleMock = await setup(web3.toWei(1), web3.toWei(10));
-        let owner = await buyLimitsCrowdsaleMock.owner();
-        assert.equal(owner, accounts[0], "Owner was not set correctly");
         assert.equal(await buyLimitsCrowdsaleMock.minBuy(), web3.toWei(1), "Min param is not correct");
         assert.equal(await buyLimitsCrowdsaleMock.maxBuy(), web3.toWei(10), "Min param is not correct");
     });
