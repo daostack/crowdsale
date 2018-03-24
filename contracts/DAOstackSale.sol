@@ -50,10 +50,11 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
 
     /*
     ** @dev Finalizing. Transfer token ownership to wallet for safe-keeping until it will be transferred to the DAO.
-    **      Called from the finialize function in FinalizableCrowdsale.
+    **      Called from the finalize function in FinalizableCrowdsale.
     */
     function finalization() internal {
         MintableToken(token).transferOwnership(wallet);
+        super.finalization();
     }
 
     /*
@@ -65,10 +66,12 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     **
     */
     function _prePurchaseAmount(uint _weiAmount) internal returns(uint weiAmount, uint changeEthBack) {
-        if (!capReached() && weiRaised.add(_weiAmount) > cap) {
+        if (weiRaised.add(_weiAmount) > cap) {
             changeEthBack = weiRaised.add(_weiAmount) - cap;
             weiAmount = _weiAmount.sub(changeEthBack);
-            _setLimits(weiAmount,maxBuy);
+            if (weiAmount < minBuy) {
+                _setLimits(weiAmount,maxBuy);
+            }
         } else {
             weiAmount = _weiAmount;
         }
