@@ -68,6 +68,7 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
         if (!capReached() && weiRaised.add(_weiAmount) > cap) {
             changeEthBack = weiRaised.add(_weiAmount) - cap;
             weiAmount = _weiAmount.sub(changeEthBack);
+            _setLimits(weiAmount,maxBuy);
         } else {
             weiAmount = _weiAmount;
         }
