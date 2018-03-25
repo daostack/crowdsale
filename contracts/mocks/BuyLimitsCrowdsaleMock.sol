@@ -1,4 +1,4 @@
-pragma solidity 0.4.19;
+pragma solidity ^0.4.21;
 
 import "../BuyLimitsCrowdsale.sol";
 import "../token/ERC20/MintableToken.sol";
