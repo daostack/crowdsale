@@ -1,4 +1,4 @@
-pragma solidity 0.4.19;
+pragma solidity ^0.4.21;
 
 import "./token/ERC20/MintableToken.sol";
 import "./CappedCrowdsale.sol";
@@ -45,15 +45,16 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     ** @dev Drain function, in case of failure. Contract should not hold eth anyhow.
     */
     function drain() onlyOwner public {
-        wallet.transfer(this.balance);
+        wallet.transfer(address(this).balance);
     }
 
     /*
     ** @dev Finalizing. Transfer token ownership to wallet for safe-keeping until it will be transferred to the DAO.
-    **      Called from the finialize function in FinalizableCrowdsale.
+    **      Called from the finalize function in FinalizableCrowdsale.
     */
     function finalization() internal {
         MintableToken(token).transferOwnership(wallet);
+        super.finalization();
     }
 
     /*
@@ -65,9 +66,12 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     **
     */
     function _prePurchaseAmount(uint _weiAmount) internal returns(uint weiAmount, uint changeEthBack) {
-        if (!capReached() && weiRaised.add(_weiAmount) > cap) {
+        if (weiRaised.add(_weiAmount) > cap) {
             changeEthBack = weiRaised.add(_weiAmount) - cap;
             weiAmount = _weiAmount.sub(changeEthBack);
+            if (weiAmount < minBuy) {
+                _setLimits(weiAmount,maxBuy);
+            }
         } else {
             weiAmount = _weiAmount;
         }

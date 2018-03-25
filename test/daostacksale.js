@@ -10,7 +10,7 @@ let params;
 let daoStackSale;
 let whiteListed;
 let notWhiteListed;
-const setup = async function () {
+const setup = async function (_minBuy = 1) {
     let accounts = web3.eth.accounts;
     token = await MintableToken.new();
     let startDelay = 7*24*60*60;
@@ -25,7 +25,7 @@ const setup = async function () {
         rate: 500,
         wallet: accounts[5],
         cap: web3.toWei(20),
-        minBuy: web3.toWei(1),
+        minBuy: web3.toWei(_minBuy),
         maxBuy: web3.toWei(10),
     };
     daoStackSale = await DAOstackSale.new(
@@ -194,6 +194,20 @@ contract('DAOstackSale', function (accounts)  {
         assert.equal(await daoStackSale.capReached(),true);
         //cap reached.
         await buy(whiteListed[1], web3.toWei(1), false);
+    });
+
+    it("Try to go over cap where the partial is less than minimum", async () => {
+       await setup(2); //_minBuy = 2
+       await helpers.increaseTime(params.startDelay + 60*60);
+       await buy(whiteListed[0], web3.toWei(8), true);
+       await buy(whiteListed[1], web3.toWei(8), true);
+       await buy(whiteListed[1], web3.toWei(3), true);
+       assert.equal(await daoStackSale.capReached(),false);
+       //partial cap
+       await buy(whiteListed[1], web3.toWei(5), true);
+       assert.equal(await daoStackSale.capReached(),true);
+      //cap reached.
+       await buy(whiteListed[1], web3.toWei(1), false);
     });
 
     it("Full Scenario 1, cap filled", async () => {
