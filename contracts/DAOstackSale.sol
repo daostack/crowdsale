@@ -45,7 +45,7 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     ** @dev Drain function, in case of failure. Contract should not hold eth anyhow.
     */
     function drain() onlyOwner public {
-        wallet.transfer(this.balance);
+        wallet.transfer(address(this).balance);
     }
 
     /*
