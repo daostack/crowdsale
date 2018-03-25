@@ -1,4 +1,4 @@
-pragma solidity 0.4.19;
+pragma solidity ^0.4.21;
 
 import "./ownership/Ownable.sol";
 import "./Crowdsale.sol";
@@ -47,7 +47,7 @@ contract BuyLimitsCrowdsale is Crowdsale {
         }
         minBuy = _min;
         maxBuy = _max;
-        LogLimitsChanged(_min, _max);
+        emit LogLimitsChanged(_min, _max);
     }
 
     /**
