@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.18;
+pragma solidity ^0.4.21;
 
 import "./Crowdsale.sol";
 import "./ownership/Ownable.sol";
@@ -28,7 +28,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function addToWhitelist(address _beneficiary) external onlyOwner {
     whitelist[_beneficiary] = true;
-    LogAddedToWhiteList(_beneficiary);
+    emit LogAddedToWhiteList(_beneficiary);
   }
 
   /**
@@ -38,7 +38,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
   function addManyToWhitelist(address[] _beneficiaries) external onlyOwner {
     for (uint256 i = 0; i < _beneficiaries.length; i++) {
       whitelist[_beneficiaries[i]] = true;
-      LogAddedToWhiteList(_beneficiaries[i]);
+      emit LogAddedToWhiteList(_beneficiaries[i]);
     }
   }
 
@@ -48,7 +48,7 @@ contract WhitelistedCrowdsale is Crowdsale, Ownable {
    */
   function removeFromWhitelist(address _beneficiary) external onlyOwner {
     whitelist[_beneficiary] = false;
-    LogRemovedFromWhiteList(_beneficiary);
+    emit LogRemovedFromWhiteList(_beneficiary);
   }
 
   /**
