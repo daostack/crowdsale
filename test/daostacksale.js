@@ -210,6 +210,24 @@ contract('DAOstackSale', function (accounts)  {
        await buy(whiteListed[1], web3.toWei(1), false);
     });
 
+    it("drainTokens", async () => {
+        await setup();
+        var testToken = await MintableToken.new();
+        await testToken.mint(accounts[0],100);
+        assert.equal(await testToken.balanceOf(accounts[0]),100);
+        await testToken.transfer(daoStackSale.address,100);
+        assert.equal(await testToken.balanceOf(daoStackSale.address),100);
+        assert.equal(await testToken.balanceOf(accounts[5]),0);
+        try {
+            await daoStackSale.drainTokens(testToken.address,{from:accounts[1]});
+            assert(false, "drainTokens is onlyOwner");
+        } catch (error) {
+            helpers.assertVMException(error);
+        }
+        await daoStackSale.drainTokens(testToken.address);
+        assert.equal(await testToken.balanceOf(accounts[5]),100);
+    });
+
     it("Full Scenario 1, cap filled", async () => {
         await setup();
 
@@ -256,13 +274,9 @@ contract('DAOstackSale', function (accounts)  {
         // Check no ethers left on contract, and no
         assert.equal(await web3.eth.getBalance(daoStackSale.address), 0, 'Funds left on contract');
 
-        // Check drain by owner and non-owner:
-        await daoStackSale.drain(); // Just chack it does not revert
-        try {
-            await daoStackSale.drain({ from: accounts[1] });
-        } catch (error) {
-            helpers.assertVMException(error);
-        }
+        // Check drain
+        await daoStackSale.drain();
+
     });
 
     it("Full Scenario 2, time cap", async () => {
@@ -298,12 +312,7 @@ contract('DAOstackSale', function (accounts)  {
         // Check no ethers left on contract, and no
         assert.equal(await web3.eth.getBalance(daoStackSale.address), 0, 'Funds left on contract');
 
-        // Check drain by owner and non-owner:
-        await daoStackSale.drain(); // Just chack it does not revert
-        try {
-            await daoStackSale.drain({ from: accounts[1] });
-        } catch (error) {
-            helpers.assertVMException(error);
-        }
+        // Check drain
+        await daoStackSale.drain(); // Just check it does not revert
     });
 });

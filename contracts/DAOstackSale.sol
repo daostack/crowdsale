@@ -44,9 +44,19 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     /*
     ** @dev Drain function, in case of failure. Contract should not hold eth anyhow.
     */
-    function drain() onlyOwner public {
+    function drain() public {
         wallet.transfer(address(this).balance);
     }
+
+    /*
+    ** @dev Drain tokens to wallet.
+    *  For the case someone accidentally send ERC20 tokens to the contract.
+    *  @param _token the token to drain.
+    */
+    function drainTokens(StandardToken _token) onlyOwner public {
+        _token.transfer(wallet, _token.balanceOf(address(this)));
+    }
+
 
     /*
     ** @dev Finalizing. Transfer token ownership to wallet for safe-keeping until it will be transferred to the DAO.
