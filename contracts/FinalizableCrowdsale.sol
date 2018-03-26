@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.18;
 
 import "./math/SafeMath.sol";
 import "./ownership/Ownable.sol";
@@ -25,7 +25,7 @@ contract FinalizableCrowdsale is TimedCrowdsale, Ownable {
     require(hasClosed());
 
     finalization();
-    emit Finalized();
+    Finalized();
 
     isFinalized = true;
   }
