@@ -34,7 +34,7 @@
         "ganache-cli": "^6.0.3",
         "run-with-ganache": "^0.1.1",
         "solium": "^1.1.5",
-        "truffle": "^4.0.6",
+        "truffle": "^4.1.5",
         "truffle-contract": "^3.0.3"
     },
     "devDependencies": {
