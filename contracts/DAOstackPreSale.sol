@@ -10,7 +10,7 @@ import "./BuyLimits.sol";
  * @dev A contract to allow only whitelisted followers to participate in presale.
  */
 contract DAOstackPreSale is Pausable,BuyLimits,Whitelist {
-    event LogFundsReceived(address indexed _sender, uint amount);
+    event LogFundsReceived(address indexed _sender, uint _amount);
 
     address public wallet; // Amount of wei raised
 
