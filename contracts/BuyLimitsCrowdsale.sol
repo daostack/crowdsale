@@ -1,53 +1,18 @@
 pragma solidity ^0.4.21;
 
-import "./ownership/Ownable.sol";
 import "./Crowdsale.sol";
+import "./BuyLimits.sol";
 
 
-contract BuyLimitsCrowdsale is Crowdsale {
-    event LogLimitsChanged(uint _minBuy, uint _maxBuy);
+contract BuyLimitsCrowdsale is BuyLimits,Crowdsale {
 
-    // Variables holding the min and max payment in wei
-    uint public minBuy; // min buy in wei
-    uint public maxBuy; // max buy in wei, 0 means no maximum
-
-    /*
-    ** Modifier, reverting if not within limits.
+    /**
+     ** @dev Constructor, define variable:
     */
-    modifier isWithinLimits(uint _amount) {
-        require(withinLimits(_amount));
-        _;
-    }
-
-    /*
-    ** @dev Constructor, define variable:
-    */
-    function BuyLimitsCrowdsale(uint _min, uint  _max) public {
-        _setLimits(_min, _max);
-    }
-
-    /*
-    ** @dev Check TXs value is within limits:
-    */
-    function withinLimits(uint _value) public view returns(bool) {
-        if (maxBuy != 0) {
-            return (_value >= minBuy && _value <= maxBuy);
-        }
-        return (_value >= minBuy);
-    }
-
-    /*
-    ** @dev set limits logic:
-    ** @param _min set the minimum buy in wei
-    ** @param _max set the maximum buy in wei, 0 indeicates no maximum
-    */
-    function _setLimits(uint _min, uint _max) internal {
-        if (_max != 0) {
-            require (_min <= _max); // Sanity Check
-        }
-        minBuy = _min;
-        maxBuy = _max;
-        emit LogLimitsChanged(_min, _max);
+    function BuyLimitsCrowdsale(uint _min, uint  _max)
+    public
+    BuyLimits(_min,_max)
+    {
     }
 
     /**
