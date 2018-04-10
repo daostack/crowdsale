@@ -1,6 +1,5 @@
 const DAOstackSale = artifacts.require('./DAOstackSale.sol');
 const MintableToken = artifacts.require('./MintableToken.sol');
-const DAOstackPreSale = artifacts.require('./DAOstackPreSale.sol');
 
 //This is a test migration script .
 //For real migration values needs to be picked out carefully.
@@ -19,6 +18,4 @@ module.exports = async function(deployer) {
     var token = await MintableToken.new(); //this should be replaced with GEN DAOToken.
     deployer.deploy(DAOstackSale,openingTime,closingTime,rate,wallet,cap,minBuy,maxBuy,token.address).then(async function(){
      });
-    deployer.deploy(DAOstackPreSale,wallet,minBuy,maxBuy).then(async function(){
-      });
   };
