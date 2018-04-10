@@ -1,5 +1,5 @@
 const helpers = require('./helpers');
-const DAOStackPreSale = artifacts.require('./DAOStackPreSale.sol');
+const DAOstackPreSale = artifacts.require('./DAOstackPreSale.sol');
 
 const BigNumber = web3.BigNumber;
 
@@ -16,7 +16,7 @@ const setup = async function (_min = 1, _max = 10) {
         min: web3.toWei(_min),
         max: web3.toWei(_max),
     };
-    daoStackPreSale = await DAOStackPreSale.new(params.wallet, params.min, params.max, { from: params.owner });
+    daoStackPreSale = await DAOstackPreSale.new(params.wallet, params.min, params.max, { from: params.owner });
     await daoStackPreSale.addAddressToWhitelist(accounts[1]);
     await daoStackPreSale.addAddressToWhitelist(accounts[2]);
     await daoStackPreSale.addAddressToWhitelist(accounts[3]);
@@ -58,7 +58,7 @@ const send = async function (sender, value, shouldSucceed) {
 
 };
 
-contract('DAOStackPreSale', function (accounts)  {
+contract('DAOstackPreSale', function (accounts)  {
 
     it("Check owner and params", async () => {
         await setup();
