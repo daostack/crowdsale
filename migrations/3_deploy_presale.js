@@ -5,8 +5,7 @@ const DAOstackPreSale = artifacts.require('./DAOstackPreSale.sol');
 
 module.exports = async function(deployer) {
     var wallet = web3.eth.accounts[5]; //this should be replaced with real wallet account
-    var minBuy = web3.toWei(1);
-    var maxBuy =  web3.toWei(10);
-    await deployer.deploy(DAOstackPreSale,wallet,minBuy,maxBuy).then(async function(){
-      });
+    var minBuy = web3.toWei("1", "ether");
+    var maxBuy = 0;
+    await deployer.deploy(DAOstackPreSale,wallet,minBuy,maxBuy);
   };

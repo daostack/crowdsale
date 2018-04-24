@@ -16,6 +16,13 @@ module.exports = async function(deployer) {
     var minBuy = web3.toWei(1);
     var maxBuy =  web3.toWei(10);
     var token = await MintableToken.new(); //this should be replaced with GEN DAOToken.
-    await deployer.deploy(DAOstackSale,openingTime,closingTime,rate,wallet,cap,minBuy,maxBuy,token.address).then(async function(){
-     });
+    await deployer.deploy(
+                          DAOstackSale,
+                          openingTime,
+                          closingTime,
+                          rate,wallet,
+                          cap,minBuy,
+                          maxBuy,
+                          token.address
+                        );
   };
