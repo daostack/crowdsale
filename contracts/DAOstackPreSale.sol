@@ -7,18 +7,23 @@ import "./BuyLimits.sol";
 
 /**
  * @title DAOstackPresale
- * @dev A contract to allow only whitelisted followers to participate in presale.
+ * @dev
+ * - Allow only Whitelisted followers to participate in the presale.
+ * - Pausable by owner.Contract will accept fund only when it is unpaused.
+ * - Funds transfer to this contract will be sent automatically to  wallet address.
+ * - Funds below minimum allowed value will be rejected.
+ * - If maximum allowed value is set - funds over maximum allowed value will be rejected.
  */
 contract DAOstackPreSale is Pausable,BuyLimits,Whitelist {
     event LogFundsReceived(address indexed _sender, uint _amount);
 
-    address public wallet; // Amount of wei raised
+    address public wallet;
 
     /**
     * @dev Constructor.
-    * @param _wallet Address where the funds are transfered to
-    * @param _minBuy Address where the funds are transfered to
-    * @param _maxBuy Address where the funds are transfered to
+    * @param _wallet Address where the funds will be transfer to
+    * @param _minBuy minimum buy in wei
+    * @param _maxBuy maximum buy in wei ,0 means no maximum
     */
     function DAOstackPreSale(address _wallet, uint _minBuy, uint _maxBuy)
     public
@@ -30,7 +35,7 @@ contract DAOstackPreSale is Pausable,BuyLimits,Whitelist {
     }
 
     /**
-    * @dev Fallback, funds coming in are transfered to wallet
+    * @dev Fallback, funds coming in are transfer to wallet
     */
     function () payable whenNotPaused onlyWhitelisted isWithinLimits(msg.value) external {
         wallet.transfer(msg.value);
