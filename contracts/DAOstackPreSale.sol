@@ -9,7 +9,7 @@ import "./BuyLimits.sol";
  * @title DAOstackPresale
  * @dev
  * - Allow only Whitelisted followers to participate in the presale.
- * - Pausable by owner.Contract will accept fund only when it is unpaused.
+ * - Pausable by owner.Contract will accept funds only when it is unpaused.
  * - Funds transfer to this contract will be sent automatically to  wallet address.
  * - Funds below minimum allowed value will be rejected.
  * - If maximum allowed value is set - funds over maximum allowed value will be rejected.
@@ -35,7 +35,7 @@ contract DAOstackPreSale is Pausable,BuyLimits,Whitelist {
     }
 
     /**
-    * @dev Fallback, funds coming in are transfer to wallet
+    * @dev Fallback, funds coming in are transferred to wallet
     */
     function () payable whenNotPaused onlyWhitelisted isWithinLimits(msg.value) external {
         wallet.transfer(msg.value);
