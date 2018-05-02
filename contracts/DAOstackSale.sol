@@ -58,6 +58,10 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     }
 
 
+    function hasClosed() public view returns (bool) {
+      return (capReached() || super.hasClosed());
+    }
+
     /*
     ** @dev Finalizing. Transfer token ownership to wallet for safe-keeping until it will be transferred to the DAO.
     **      Called from the finalize function in FinalizableCrowdsale.

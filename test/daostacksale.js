@@ -251,27 +251,17 @@ contract('DAOstackSale', function (accounts)  {
         // Try to buy after cap reached:
         await buy(whiteListed[0], web3.toWei(2), false);
 
-        try {
-            await daoStackSale.finalize();
-        } catch (error) {
-            helpers.assertVMException(error, 'finalize should revert because crowdsale not reached the time cap yet.');
-        }
-
-        await helpers.increaseTime(params.duration);
-
         // Check finalization:
+        await daoStackSale.finalize();
+        assert.equal(await token.owner(), params.wallet);
 
         // Try to buy after finish:
         await buy(whiteListed[0], web3.toWei(2), false);
 
-        await daoStackSale.finalize();
-
-        assert.equal(await token.owner(), params.wallet);
-
         // Try to buy again after finish:
         await buy(whiteListed[0], web3.toWei(2), false);
 
-        // Check no ethers left on contract, and no
+        // Check no ethers left on contract:
         assert.equal(await web3.eth.getBalance(daoStackSale.address), 0, 'Funds left on contract');
 
         // Check drain
