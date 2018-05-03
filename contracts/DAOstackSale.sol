@@ -59,7 +59,7 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
 
 
     function hasClosed() public view returns (bool) {
-      return (capReached() || super.hasClosed());
+        return (capReached() || super.hasClosed());
     }
 
     /*
