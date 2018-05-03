@@ -13,6 +13,8 @@ import "./BuyLimitsCrowdsale.sol";
 contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, BuyLimitsCrowdsale, WhitelistedCrowdsale {
     using SafeMath for uint256;
 
+    uint max_gas_price;
+
     /*
     ** @dev constructor.
     ** @param _openingTime the time sale start.
@@ -33,12 +35,14 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
         uint _minBuy,
         uint _maxBuy,
         MintableToken _token
+        uint _max_gas_price;
     ) public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
         BuyLimitsCrowdsale(_minBuy, _maxBuy)
         TimedCrowdsale(_openingTime,_closingTime)
     {
+        max_gas_price = _max_gas_price;
     }
 
     /*
@@ -56,7 +60,6 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
     function drainTokens(StandardToken _token) onlyOwner public {
         _token.transfer(wallet, _token.balanceOf(address(this)));
     }
-
 
     function hasClosed() public view returns (bool) {
         return (capReached() || super.hasClosed());
@@ -89,5 +92,16 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
         } else {
             weiAmount = _weiAmount;
         }
+    }
+
+
+    /**
+     * @dev checking gas price.
+     * @param _beneficiary Address performing the token purchase
+     * @param _weiAmount Value in wei involved in the purchase
+     */
+    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+      require(tx.gasprice <= max_gas_price);
+      super._preValidatePurchase();
     }
 }
