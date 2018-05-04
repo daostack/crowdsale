@@ -13,7 +13,7 @@ import "./BuyLimitsCrowdsale.sol";
 contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale, BuyLimitsCrowdsale, WhitelistedCrowdsale {
     using SafeMath for uint256;
 
-    uint max_gas_price;
+    uint public maxGasPrice;
 
     /*
     ** @dev constructor.
@@ -34,15 +34,15 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
         uint _cap,
         uint _minBuy,
         uint _maxBuy,
+        uint _maxGasPrice,
         MintableToken _token
-        uint _max_gas_price;
     ) public
         Crowdsale(_rate, _wallet, _token)
         CappedCrowdsale(_cap)
         BuyLimitsCrowdsale(_minBuy, _maxBuy)
         TimedCrowdsale(_openingTime,_closingTime)
     {
-        max_gas_price = _max_gas_price;
+        maxGasPrice = _maxGasPrice;
     }
 
     /*
@@ -101,7 +101,7 @@ contract DAOstackSale is MintedCrowdsale, CappedCrowdsale, FinalizableCrowdsale,
      * @param _weiAmount Value in wei involved in the purchase
      */
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-      require(tx.gasprice <= max_gas_price);
-      super._preValidatePurchase();
+      require(tx.gasprice <= maxGasPrice);
+      super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 }

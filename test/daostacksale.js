@@ -27,6 +27,7 @@ const setup = async function (_minBuy = 1) {
         cap: web3.toWei(20),
         minBuy: web3.toWei(_minBuy),
         maxBuy: web3.toWei(10),
+        maxGasPrice: web3.toWei(5e10), // Setting max gas price to 50Gwei
     };
     daoStackSale = await DAOstackSale.new(
         params.openingTime,
@@ -36,6 +37,7 @@ const setup = async function (_minBuy = 1) {
         params.cap,
         params.minBuy,
         params.maxBuy,
+        params.maxGasPrice,
         token.address
     );
     await daoStackSale.addToWhitelist(accounts[1]);
@@ -49,7 +51,7 @@ const setup = async function (_minBuy = 1) {
 };
 
 
-const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBuy = false ) {
+const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBuy = false, gasPrice = params.maxGasPrice ) {
 
     if (beneficiary === 0) {
         beneficiary = buyer;
@@ -67,13 +69,12 @@ const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBu
     let changeEthBack = new BigNumber(0);
     let tx,txHash;
     let gasUsed;
-    let gasPrice;
     let gasPaid;
 
 
     if (shouldSucceed === true) {
         if (callBuy) {
-          tx = await daoStackSale.buyTokens(beneficiary,{from: buyer,value: value});
+          tx = await daoStackSale.buyTokens(beneficiary,{from: buyer, value: value, gasPrice: gasPrice });
           if (!capReached && Number(preWeiRaised.plus(value)) > params.cap) {
               changeEthBack = preWeiRaised.plus(value) - params.cap;
               value = value - changeEthBack;
@@ -83,12 +84,10 @@ const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBu
           assert.equal(tx.logs[0].args.purchaser, buyer);
           assert.equal(tx.logs[0].args.beneficiary, beneficiary);
           assert.equal(tx.logs[0].args.value, value);
-          gasPrice = await web3.eth.getTransaction(tx.receipt.transactionHash).gasPrice;
           gasUsed = tx.receipt.cumulativeGasUsed;
         }
         else {
-          txHash = await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } ); // Min sending gas (21k) is not enough
-          gasPrice = await web3.eth.getTransaction(txHash).gasPrice;
+          txHash = await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000, gasPrice: gasPrice } ); // Min sending gas (21k) is not enough
           gasUsed = await web3.eth.getTransactionReceipt(txHash).cumulativeGasUsed;
           if (!capReached && Number(preWeiRaised.plus(value)) > params.cap) {
               changeEthBack = preWeiRaised.plus(value) - params.cap;
@@ -98,13 +97,13 @@ const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBu
         balanceChange = value;
         tokenChange   = value * params.rate;
 
-        gasPaid = new BigNumber(Number(gasUsed) * gasPrice);
+        gasPaid = (new BigNumber(gasPrice)).times(gasUsed);
     } else {
         try {
               if (callBuy) {
-                await daoStackSale.buyTokens(beneficiary,{from: buyer,value: value});
+                await daoStackSale.buyTokens(beneficiary, { from: buyer,value: value, gasPrice: gasPrice });
               } else {
-                await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000 } );  // Min sending gas (21k) is not enough
+                await web3.eth.sendTransaction( { from: buyer, to: daoStackSale.address, value: value, gas: 200000, gasPrice: gasPrice } );  // Min sending gas (21k) is not enough
               }
         } catch (error) {
             helpers.assertVMException(error, 'Buying should have failed but did not');
@@ -114,6 +113,7 @@ const buy = async function (buyer, value, shouldSucceed, beneficiary = 0, callBu
     let postWalletBalance = await web3.eth.getBalance(params.wallet);
     let postWeiRaised = await daoStackSale.weiRaised();
     let postBuyerBalance = await web3.eth.getBalance(buyer);
+
     assert.equal(postWeiRaised.toString(), (preWeiRaised.plus(balanceChange)).toString(), 'Wrong wei raised variable');
     assert.equal(postWalletBalance.toString(), (preWalletBalance.plus(balanceChange)).toString(), 'Wrong wallet balance');
     assert.equal(postBeneficiaryTokenBalance.toString(), (preBeneficiaryTokenBalance.plus(tokenChange)).toString(), 'Wrong token balance');
@@ -138,6 +138,7 @@ contract('DAOstackSale', function (accounts)  {
         assert.equal(await daoStackSale.wallet(), params.wallet, "Wallet is not correct");
         assert.equal(await daoStackSale.minBuy(), params.minBuy, "Min param is not correct");
         assert.equal(await daoStackSale.maxBuy(), params.maxBuy, "Max param is not correct");
+        assert.equal(Number(await daoStackSale.maxGasPrice()), params.maxGasPrice, "Max gas param is not correct");
         assert.equal(await daoStackSale.cap(), params.cap, "Cap param is not correct");
         assert.equal(await daoStackSale.rate(), params.rate, "Rate param is not correct");
     });
@@ -181,6 +182,14 @@ contract('DAOstackSale', function (accounts)  {
         await helpers.increaseTime(params.startDelay + 60*60);
         await buy(whiteListed[0], web3.toWei(0.5), false);
         await buy(whiteListed[1], web3.toWei(11), false);
+    });
+
+    it("Check gas price limit", async () => {
+        await setup();
+        await helpers.increaseTime(params.startDelay + 60*60);
+        await buy(whiteListed[0], web3.toWei(2), false, 0, false, web3.toWei(5.1e10));
+        await buy(whiteListed[0], web3.toWei(2), false, whiteListed[2], true, web3.toWei(5.1e10));
+        await buy(whiteListed[0], web3.toWei(2), true, 0, false, web3.toWei(4.9e10));
     });
 
     it("Try to go over cap", async () => {
