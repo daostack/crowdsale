@@ -15,14 +15,18 @@ module.exports = async function(deployer) {
     var cap = web3.toWei(20);
     var minBuy = web3.toWei(1);
     var maxBuy =  web3.toWei(10);
+    var max_gas_price = web3.toWei(5e10); // Setting max gas price to 50Gwei
     var token = await MintableToken.new(); //this should be replaced with GEN DAOToken.
     await deployer.deploy(
                           DAOstackSale,
                           openingTime,
                           closingTime,
-                          rate,wallet,
-                          cap,minBuy,
+                          rate,
+                          wallet,
+                          cap,
+                          minBuy,
                           maxBuy,
+                          max_gas_price,
                           token.address
                         );
   };
