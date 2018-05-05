@@ -27,7 +27,7 @@ const setup = async function (_minBuy = 1) {
         cap: web3.toWei(20),
         minBuy: web3.toWei(_minBuy),
         maxBuy: web3.toWei(10),
-        maxGasPrice: web3.toWei(5e10), // Setting max gas price to 50Gwei
+        maxGasPrice: 5e10, // Setting max gas price to 50Gwei
     };
     daoStackSale = await DAOstackSale.new(
         params.openingTime,
@@ -187,9 +187,9 @@ contract('DAOstackSale', function (accounts)  {
     it("Check gas price limit", async () => {
         await setup();
         await helpers.increaseTime(params.startDelay + 60*60);
-        await buy(whiteListed[0], web3.toWei(2), false, 0, false, web3.toWei(5.1e10));
-        await buy(whiteListed[0], web3.toWei(2), false, whiteListed[2], true, web3.toWei(5.1e10));
-        await buy(whiteListed[0], web3.toWei(2), true, 0, false, web3.toWei(4.9e10));
+        await buy(whiteListed[0], web3.toWei(2), false, 0, false, 5.1e10);
+        await buy(whiteListed[0], web3.toWei(2), false, whiteListed[2], true, 5.1e10);
+        await buy(whiteListed[0], web3.toWei(2), true, 0, false, 4.9e10);
     });
 
     it("Try to go over cap", async () => {
